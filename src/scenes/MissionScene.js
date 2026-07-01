@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { isAvailable, missions, normalizeCode } from "../data/missions.js";
 import { progress } from "../state/progress.js";
-import { addCoverBackground, addGhostButton, addGroundedActor, addHud, addNav, addRelicStrip, addRpgPanel, addWrappedText, fitImageToBox, flashMessage, layout } from "./SceneHelpers.js";
+import { addCoverBackground, addGhostButton, addGroundedActor, addNav, addRpgPanel, addWrappedText, fitImageToBox, flashMessage, layout } from "./SceneHelpers.js";
 import DialogueSystem from "../systems/DialogueSystem.js";
 import RepetinSystem from "../systems/RepetinSystem.js";
 
@@ -50,10 +50,7 @@ export default class MissionScene extends Phaser.Scene {
       depth: 20
     }).setOrigin(0.5);
 
-    addHud(this, l.safeTop + 122);
-    addRelicStrip(this, l.safeX + 30, l.safeTop + 160, (l.contentW - 60) / 6, 30);
-
-    const clueY = l.H * 0.48;
+    const clueY = l.safeTop + 205;
     if (this.textures.exists("ui.missionPanel")) {
       const panel = this.add.image(l.W / 2, clueY, "ui.missionPanel").setDepth(11).setAlpha(0.90);
       panel.setDisplaySize(l.contentW + 54, 128);
@@ -69,7 +66,7 @@ export default class MissionScene extends Phaser.Scene {
       strokeThickness: 3,
       depth: 20
     });
-    addWrappedText(this, this.mission.hint, l.safeX + 42, clueY - 18, l.contentW * 0.58, {
+    addWrappedText(this, this.mission.hint, l.safeX + 42, clueY - 18, l.contentW - 84, {
       fontSize: "11px",
       color: "#fff2ff",
       lineSpacing: 2,
@@ -78,13 +75,13 @@ export default class MissionScene extends Phaser.Scene {
       strokeThickness: 2
     });
 
-    const tomasGroundY = l.H * 0.665;
-    addGroundedActor(this, "characters.tomas", l.safeX + 60, tomasGroundY, 100, { name: "Tomas", depth: 24, shadowW: 58 });
+    const tomasGroundY = l.H * 0.56;
+    addGroundedActor(this, "characters.tomas", l.safeX + 60, tomasGroundY, 96, { name: "Tomas", depth: 24, shadowW: 58 });
 
     const relicX = l.W * 0.74;
-    const relicY = l.H * 0.625;
+    const relicY = l.H * 0.515;
     this.relic = this.add.image(relicX, relicY, this.mission.relicKey).setDepth(22);
-    fitImageToBox(this.relic, 88, 88);
+    fitImageToBox(this.relic, 84, 84);
     const missionAvailable = isAvailable(this.mission);
     const missionCleared = progress.isCleared(this.mission.id);
     const showRelicNow = missionCleared;
@@ -111,7 +108,7 @@ export default class MissionScene extends Phaser.Scene {
       strokeThickness: 3
     }).setOrigin(0.5);
 
-    this.dialogue = new DialogueSystem(this, { y: l.H * 0.755, height: 154, fontSize: "12px" });
+    this.dialogue = new DialogueSystem(this, { y: l.H * 0.675, height: 136, fontSize: "12px" });
     if (!missionAvailable) {
       this.dialogue.say({ speaker: "Sistema", portrait: "portraits.donRepetinMock", text: `Zona sellada hasta ${this.mission.date}. El mapa todavía no permite esta ruta.` });
       this.showNav();
@@ -138,18 +135,9 @@ export default class MissionScene extends Phaser.Scene {
     const element = document.createElement("form");
     element.className = "code-panel code-panel-v4";
     element.innerHTML = '<input autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="CODIGO" /><button type="submit">Validar</button>';
-
-    const blockCanvasTouch = (event) => {
-      event.stopPropagation();
-    };
-    ["pointerdown", "pointerup", "mousedown", "mouseup", "touchstart", "touchend", "click"].forEach((eventName) => {
-      element.addEventListener(eventName, blockCanvasTouch, { passive: true });
-    });
-
-    this.codeDom = this.add.dom(l.W / 2, l.H * 0.89, element).setDepth(95);
+    this.codeDom = this.add.dom(l.W / 2, l.H * 0.785, element).setDepth(95);
     element.addEventListener("submit", (event) => {
       event.preventDefault();
-      event.stopPropagation();
       const value = normalizeCode(element.querySelector("input").value);
       if (value === normalizeCode(this.mission.code)) this.correctCode();
       else this.wrongCode();
@@ -172,13 +160,13 @@ export default class MissionScene extends Phaser.Scene {
     this.relic.setVisible(true).setAlpha(1);
     this.relicLabel?.setText(this.mission.relic);
     this.dialogue.say({ speaker: "Sistema", portrait: this.mission.relicKey, text: this.mission.message });
-    const spotlight = addRpgPanel(this, l.W / 2, l.H * 0.50, l.contentW, 126, { fill: 0xffd166, alpha: 0.12, stroke: 0x7cffc4, depth: 24 });
+    const spotlight = addRpgPanel(this, l.W / 2, l.H * 0.48, l.contentW, 126, { fill: 0xffd166, alpha: 0.12, stroke: 0x7cffc4, depth: 24 });
     const burst = this.add.image(this.relic.x, this.relic.y, "effects.impactBurst").setDepth(28);
     fitImageToBox(burst, 180, 180);
-    this.tweens.add({ targets: this.relic, x: l.W / 2, y: l.H * 0.42, scale: this.relic.scale * 1.2, angle: 360, duration: 850, ease: "Back.easeOut" });
+    this.tweens.add({ targets: this.relic, x: l.W / 2, y: l.H * 0.39, scale: this.relic.scale * 1.2, angle: 360, duration: 850, ease: "Back.easeOut" });
     this.tweens.add({ targets: burst, alpha: 0, scale: burst.scale * 1.35, duration: 850, onComplete: () => burst.destroy() });
     this.tweens.add({ targets: spotlight, alpha: 0, delay: 900, duration: 500, onComplete: () => spotlight.destroy() });
-    flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 190);
+    flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 150);
     this.time.delayedCall(500, () => this.showNav());
   }
 }
