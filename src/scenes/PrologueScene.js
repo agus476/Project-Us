@@ -18,7 +18,14 @@ export default class PrologueScene extends Phaser.Scene {
     addCoverBackground(this, "backgrounds.map", 0.82);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x07020e, 0.5);
     this.add.image(l.W / 2, l.safeTop + 58, "logos.projectUs").setScale(0.2);
-    addRpgButton(this, l.W - 66, l.safeTop + 22, 98, 36, "Saltar", () => {
+    addTitle(this, "Prólogo", l.W / 2, l.safeTop + 142, 28);
+    this.panel = addRpgPanel(this, l.W / 2, l.H * 0.44, l.contentW, l.H * 0.34, { fill: 0x0d0618, alpha: 0.88, stroke: 0xffd166 });
+    this.text = addWrappedText(this, "", l.safeX + 24, l.H * 0.34, l.contentW - 48, {
+      fontSize: "20px",
+      color: "#fff2ff",
+      lineSpacing: 8
+    });
+    this.skipButton = addRpgButton(this, l.W / 2, l.H * 0.765, l.contentW * 0.58, 42, "Saltar prólogo", () => {
       this.typeEvent?.remove(false);
       this.scene.start("BaseScene");
     }, {
@@ -27,13 +34,6 @@ export default class PrologueScene extends Phaser.Scene {
       alpha: 0.9,
       fontSize: "12px",
       depth: 85
-    });
-    addTitle(this, "Prólogo", l.W / 2, l.safeTop + 142, 28);
-    this.panel = addRpgPanel(this, l.W / 2, l.H * 0.44, l.contentW, l.H * 0.34, { fill: 0x0d0618, alpha: 0.88, stroke: 0xffd166 });
-    this.text = addWrappedText(this, "", l.safeX + 24, l.H * 0.34, l.contentW - 48, {
-      fontSize: "20px",
-      color: "#fff2ff",
-      lineSpacing: 8
     });
     this.renderPage();
   }
