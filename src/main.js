@@ -18,7 +18,7 @@ const config = {
   parent: "game",
   backgroundColor: "#12071f",
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 430,
     height: 932
