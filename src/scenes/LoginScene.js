@@ -135,7 +135,7 @@ export default class LoginScene extends Phaser.Scene {
         </div>
       </form>
     `;
-    const { dom, wrapper } = createDomOverlay(this, l.W / 2, l.H * 0.58, html);
+    const { dom, wrapper } = createDomOverlay(this, l.W / 2, l.H * 0.535, html);
     this.loginDom = dom;
     this.terminalEl = wrapper.querySelector("[data-terminal]");
     this.inputRow = wrapper.querySelector("[data-input-row]");
