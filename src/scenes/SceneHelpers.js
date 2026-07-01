@@ -8,12 +8,14 @@ export const H = 932;
 export function layout(scene) {
   const width = scene.scale.width;
   const height = scene.scale.height;
-  const safeX = 22;
-  const safeTop = 34;
-  const safeBottom = 30;
+  const compact = height < 760;
+  const safeX = compact ? 18 : 22;
+  const safeTop = compact ? 24 : 34;
+  const safeBottom = compact ? 84 : 30;
   return {
     W: width,
     H: height,
+    compact,
     safeX,
     safeTop,
     safeBottom,
@@ -90,7 +92,7 @@ export function addWrappedText(scene, text, x, y, maxWidth, style = {}) {
 export function addTitle(scene, text, x, y, size = 28) {
   const l = layout(scene);
   return addWrappedText(scene, text, x ?? l.W / 2, y ?? 72, l.contentW, {
-    fontSize: `${size}px`,
+    fontSize: `${l.compact ? Math.min(size, 24) : size}px`,
     color: "#fff2ff",
     fontStyle: "bold",
     align: "center",
@@ -102,10 +104,9 @@ export function addTitle(scene, text, x, y, size = 28) {
 
 export function addRpgButton(scene, x, y, w, h, label, callback, options = {}) {
   const container = scene.add.container(x, y).setDepth(options.depth ?? 50);
-  const bg = scene.add.rectangle(0, 0, w, h, options.fill ?? 0xd94fa7, options.alpha ?? 1)
-    .setStrokeStyle(options.strokeWidth ?? 3, options.stroke ?? 0xffd166)
-    .setInteractive({ useHandCursor: !options.disabled });
   const shadow = scene.add.rectangle(0, Math.max(4, h * 0.12), w, h, 0x5a1f62, 0.48);
+  const bg = scene.add.rectangle(0, 0, w, h, options.fill ?? 0xd94fa7, options.alpha ?? 1)
+    .setStrokeStyle(options.strokeWidth ?? 3, options.stroke ?? 0xffd166);
   const shine = scene.add.rectangle(0, -h * 0.28, w - 10, Math.max(6, h * 0.18), 0xfff0ff, 0.18);
   const text = scene.add.text(0, 0, label, {
     fontFamily: "Trebuchet MS, Verdana",
@@ -119,12 +120,17 @@ export function addRpgButton(scene, x, y, w, h, label, callback, options = {}) {
   }).setOrigin(0.5);
 
   container.add([shadow, bg, shine, text]);
+  container.setSize(w, h);
   if (options.disabled) {
     container.setAlpha(0.45);
   } else {
-    bg.on("pointerover", () => scene.tweens.add({ targets: container, scale: 1.035, duration: 100 }));
-    bg.on("pointerout", () => scene.tweens.add({ targets: container, scale: 1, duration: 100 }));
-    bg.on("pointerdown", callback);
+    container.setInteractive(new Phaser.Geom.Rectangle(-w / 2, -h / 2, w, h), Phaser.Geom.Rectangle.Contains);
+    container.on("pointerover", () => scene.tweens.add({ targets: container, scale: 1.035, duration: 100 }));
+    container.on("pointerout", () => scene.tweens.add({ targets: container, scale: 1, duration: 100 }));
+    container.on("pointerdown", (pointer, localX, localY, event) => {
+      event?.stopPropagation?.();
+      callback?.();
+    });
   }
   return clampToSafeArea(container, scene);
 }
@@ -187,9 +193,9 @@ export function addNav(scene, active = "") {
     ["Logros", "AchievementsScene"]
   ];
   const current = active || scene.scene?.key || "";
-  const y = l.H - l.safeBottom - 42;
+  const y = l.H - (l.compact ? 102 : l.safeBottom + 42);
   const barW = Math.min(l.contentW + 34, l.W - 8);
-  const barH = 86;
+  const barH = l.compact ? 92 : 86;
   const navigate = (target) => {
     if (target === current) return;
     scene.scene.start(target);
@@ -200,9 +206,9 @@ export function addNav(scene, active = "") {
     nav.setDisplaySize(barW, barH);
     const buttonW = barW / 4;
     const startX = l.W / 2 - barW / 2;
-    const hitY = y + 18;
-    const hitW = Math.min(buttonW * 0.72, 82);
-    const hitH = 50;
+    const hitY = y + (l.compact ? 8 : 18);
+    const hitW = Math.min(buttonW * 0.92, 118);
+    const hitH = l.compact ? 72 : 58;
     items.forEach(([label, target], index) => {
       const x = startX + buttonW * (index + 0.5);
       const activeItem = current === target;
@@ -211,20 +217,22 @@ export function addNav(scene, active = "") {
           .setStrokeStyle(2, 0xffd166, 0.60)
           .setDepth(46);
       }
-      const zone = scene.add.zone(x, hitY, hitW, hitH).setInteractive({ useHandCursor: !activeItem }).setDepth(62);
+      const zone = scene.add.zone(x, hitY, hitW, hitH)
+        .setInteractive({ useHandCursor: true })
+        .setDepth(92);
       zone.on("pointerdown", (pointer, localX, localY, event) => {
         event?.stopPropagation?.();
         navigate(target);
       });
       zone.on("pointerup", (pointer, localX, localY, event) => event?.stopPropagation?.());
-      addWrappedText(scene, label, x, y + 25, buttonW - 10, {
-        fontSize: "11px",
+      addWrappedText(scene, label, x, y + (l.compact ? 22 : 25), buttonW - 10, {
+        fontSize: l.compact ? "12px" : "11px",
         color: activeItem ? "#ffffff" : "#fff2ff",
         align: "center",
         fontStyle: "bold",
         stroke: "#351343",
         strokeThickness: 3,
-        depth: 61
+        depth: 91
       }).setOrigin(0.5);
     });
     return nav;
@@ -236,7 +244,7 @@ export function addNav(scene, active = "") {
   items.forEach(([label, target], index) => {
     const x = l.safeX + buttonW / 2 + index * (buttonW + gap);
     const activeItem = current === target;
-    addRpgButton(scene, x, y, buttonW, 36, label, () => navigate(target), {
+    addRpgButton(scene, x, y, buttonW, 40, label, () => navigate(target), {
       fill: activeItem ? 0xff7fc8 : 0x4a1a62,
       stroke: 0xffd166,
       color: "#fff2ff",
@@ -290,7 +298,6 @@ export function flashMessage(scene, text, y) {
     }
   });
 }
-
 
 export function createDomOverlay(scene, x, y, html, className = "rpg-overlay") {
   const wrapper = document.createElement("div");
