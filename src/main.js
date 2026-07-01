@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import "./style.css";
+import "./mobile-browser-fixes.css";
 import BootScene from "./scenes/BootScene.js";
 import SplashScene from "./scenes/SplashScene.js";
 import LoginScene from "./scenes/LoginScene.js";
