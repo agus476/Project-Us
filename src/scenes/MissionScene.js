@@ -13,6 +13,7 @@ export default class MissionScene extends Phaser.Scene {
   create(data = {}) {
     const l = layout(this);
     this.mission = missions.find((item) => item.id === data.missionId) || missions[0];
+    this.navWasAdded = false;
 
     addCoverBackground(this, this.mission.backgroundKey || "backgrounds.menu", 1);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x08020f, 0.16).setDepth(1);
@@ -84,7 +85,9 @@ export default class MissionScene extends Phaser.Scene {
     const relicY = l.H * 0.625;
     this.relic = this.add.image(relicX, relicY, this.mission.relicKey).setDepth(22);
     fitImageToBox(this.relic, 88, 88);
-    const showRelicNow = progress.isCleared(this.mission.id);
+    const missionAvailable = isAvailable(this.mission);
+    const missionCleared = progress.isCleared(this.mission.id);
+    const showRelicNow = missionCleared;
     this.relic.setVisible(showRelicNow).setAlpha(showRelicNow ? 1 : 0);
 
     this.hiddenRelicHint = addWrappedText(this, "?", relicX, relicY, 90, {
@@ -109,28 +112,44 @@ export default class MissionScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.dialogue = new DialogueSystem(this, { y: l.H * 0.755, height: 154, fontSize: "12px" });
-    if (!isAvailable(this.mission)) {
+    if (!missionAvailable) {
       this.dialogue.say({ speaker: "Sistema", portrait: "portraits.donRepetinMock", text: `Zona sellada hasta ${this.mission.date}. El mapa todavía no permite esta ruta.` });
-    } else if (progress.isCleared(this.mission.id)) {
+      this.showNav();
+    } else if (missionCleared) {
       this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: `${this.mission.relic} asegurada. La bolsa arcana ya la reconoce.` });
+      this.showNav();
     } else {
       this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: this.mission.tomas });
       this.addCodeOverlay();
     }
 
-    addNav(this);
     const repetin = new RepetinSystem(this, { x: l.W - 94, y: l.H * 0.25, width: 170, height: 86 });
     this.time.delayedCall(1100, () => repetin.maybe("mission"));
+  }
+
+  showNav() {
+    if (this.navWasAdded) return;
+    addNav(this);
+    this.navWasAdded = true;
   }
 
   addCodeOverlay() {
     const l = layout(this);
     const element = document.createElement("form");
     element.className = "code-panel code-panel-v4";
-    element.innerHTML = '<input autocomplete="off" placeholder="CODIGO" /><button>Validar</button>';
-    this.codeDom = this.add.dom(l.W / 2, l.H * 0.89, element).setDepth(75);
+    element.innerHTML = '<input autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="CODIGO" /><button type="submit">Validar</button>';
+
+    const blockCanvasTouch = (event) => {
+      event.stopPropagation();
+    };
+    ["pointerdown", "pointerup", "mousedown", "mouseup", "touchstart", "touchend", "click"].forEach((eventName) => {
+      element.addEventListener(eventName, blockCanvasTouch, { passive: true });
+    });
+
+    this.codeDom = this.add.dom(l.W / 2, l.H * 0.89, element).setDepth(95);
     element.addEventListener("submit", (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const value = normalizeCode(element.querySelector("input").value);
       if (value === normalizeCode(this.mission.code)) this.correctCode();
       else this.wrongCode();
@@ -160,5 +179,6 @@ export default class MissionScene extends Phaser.Scene {
     this.tweens.add({ targets: burst, alpha: 0, scale: burst.scale * 1.35, duration: 850, onComplete: () => burst.destroy() });
     this.tweens.add({ targets: spotlight, alpha: 0, delay: 900, duration: 500, onComplete: () => spotlight.destroy() });
     flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 190);
+    this.time.delayedCall(500, () => this.showNav());
   }
 }
