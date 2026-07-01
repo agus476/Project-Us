@@ -68,7 +68,7 @@ export default class MissionScene extends Phaser.Scene {
     addGhostButton(this, l.safeX + 44, l.safeTop + 22, "Volver", () => this.scene.start("MapScene"), 88).setDepth(80);
 
     addWrappedText(this, `Día ${this.mission.day}`, l.W / 2, l.safeTop + 34, l.contentW, {
-      fontSize: "12px",
+      fontSize: "13px",
       color: "#68e5ff",
       fontStyle: "bold",
       align: "center",
@@ -78,7 +78,7 @@ export default class MissionScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     addWrappedText(this, this.mission.title, l.W / 2, l.safeTop + 65, l.contentW - 66, {
-      fontSize: "19px",
+      fontSize: "20px",
       color: "#fff2ff",
       fontStyle: "bold",
       align: "center",
@@ -88,7 +88,7 @@ export default class MissionScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     addWrappedText(this, this.mission.place || "Ruta de Sweet Week", l.W / 2, l.safeTop + 92, l.contentW - 90, {
-      fontSize: "10px",
+      fontSize: "12px",
       color: "#ffe6a7",
       fontStyle: "bold",
       align: "center",
@@ -106,7 +106,7 @@ export default class MissionScene extends Phaser.Scene {
     }
 
     addWrappedText(this, "Pista del lugar", l.safeX + 42, clueY - 40, l.contentW * 0.55, {
-      fontSize: "12px",
+      fontSize: "13px",
       color: "#68e5ff",
       fontStyle: "bold",
       stroke: "#351343",
@@ -114,9 +114,9 @@ export default class MissionScene extends Phaser.Scene {
       depth: 20
     });
     addWrappedText(this, this.mission.hint, l.safeX + 42, clueY - 18, l.contentW - 84, {
-      fontSize: "11px",
+      fontSize: "12px",
       color: "#fff2ff",
-      lineSpacing: 2,
+      lineSpacing: 3,
       depth: 20,
       stroke: "#130719",
       strokeThickness: 2
@@ -147,7 +147,7 @@ export default class MissionScene extends Phaser.Scene {
     this.tweens.add({ targets: showRelicNow ? this.relic : this.hiddenRelicHint, y: relicY - 8, duration: 1200, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
 
     this.relicLabel = addWrappedText(this, showRelicNow ? this.mission.relic : "Reliquia oculta", relicX, relicY + 48, 122, {
-      fontSize: "11px",
+      fontSize: "12px",
       color: "#ffd166",
       align: "center",
       depth: 23,
@@ -155,7 +155,7 @@ export default class MissionScene extends Phaser.Scene {
       strokeThickness: 3
     }).setOrigin(0.5);
 
-    this.dialogue = new DialogueSystem(this, { y: l.H * 0.675, height: 136, fontSize: "12px" });
+    this.dialogue = new DialogueSystem(this, { y: l.H * 0.675, height: 148, fontSize: "13px" });
     if (!missionAvailable) {
       this.dialogue.say({ speaker: "Sistema", portrait: "portraits.donRepetinMock", text: `Zona sellada hasta ${this.mission.date}. El mapa todavía no permite esta ruta.` });
       this.showNav();
@@ -244,7 +244,7 @@ export default class MissionScene extends Phaser.Scene {
     this.postMissionButton = addRpgButton(this, l.W / 2, l.H * 0.805, l.contentW * 0.62, 42, isLast ? "Volver al mapa" : "Siguiente", () => this.advancePostMissionChat(), {
       fill: isLast ? 0x7d49d8 : 0xd94fa7,
       stroke: 0xffd166,
-      fontSize: "13px",
+      fontSize: "14px",
       depth: 96
     });
   }
