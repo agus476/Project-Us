@@ -1,9 +1,54 @@
 import Phaser from "phaser";
 import { isAvailable, missions, normalizeCode } from "../data/missions.js";
 import { progress } from "../state/progress.js";
-import { addCoverBackground, addGhostButton, addGroundedActor, addNav, addRpgPanel, addWrappedText, fitImageToBox, flashMessage, layout } from "./SceneHelpers.js";
+import { addCoverBackground, addGhostButton, addGroundedActor, addNav, addRpgButton, addRpgPanel, addWrappedText, fitImageToBox, flashMessage, layout } from "./SceneHelpers.js";
 import DialogueSystem from "../systems/DialogueSystem.js";
 import RepetinSystem from "../systems/RepetinSystem.js";
+
+const POST_MISSION_CHAT = {
+  "day-1": [
+    { speaker: "Sistema", portrait: "relics.aroma", text: "Código aceptado. La señal física fue sincronizada con Project Us." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Miau. Con el Fragmento del Aroma ya puedo confirmar identidad: Agustina detectada. Nivel de sospecha: elegida por el mapa." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinMock", text: "Perfecto, empezaron con detalles. Eso suele terminar en planes, emoción y cero rutina. Malísimo para mi negocio." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Volvé cuando el mapa se vuelva a abrir. La próxima señal no viene por aroma: viene por antojo." }
+  ],
+  "day-2": [
+    { speaker: "Sistema", portrait: "relics.sabor", text: "Código aceptado. Contrabando dulce reconocido por el mapa." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento del Sabor recuperado. Registro adicional: si desaparece un Milka Oreo, la mafia gatuna no declara sin abogado." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinMock", text: "Podrían haber comido algo normal y seguir con sus vidas. Pero no, tenían que romantizar el antojo." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "El mapa ya huele a problema. Próxima señal: una criatura afectiva con mordida rápida." }
+  ],
+  "day-3": [
+    { speaker: "Sistema", portrait: "relics.alegria", text: "Código aceptado. Mordida emocional validada." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Alegría recuperado. La Piraña del Amazonas queda registrada como especie peligrosa, tierna y absolutamente culpable." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "La alegría es ineficiente. La gente feliz lava menos platos y se distrae con abrazos." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Ignoralo. Próxima zona: territorio gatuno. Entrar con respeto, snacks y cero acusaciones directas." }
+  ],
+  "day-4": [
+    { speaker: "Sistema", portrait: "relics.hogar", text: "Código aceptado. Evidencia doméstica sincronizada." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento del Hogar recuperado. Vitto y Berta niegan todo. Eso, para la ley gatuna, significa que probablemente pasó algo." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinMock", text: "Hogar, rutina, platos, ropa. Todo estaba servido para mí. ¿Por qué tuvieron que meter ternura en el expediente?" },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "La base se fortaleció. Próxima señal: un recuerdo que duró más de lo que cualquier plan razonable permite." }
+  ],
+  "day-5": [
+    { speaker: "Sistema", portrait: "relics.recuerdos", text: "Código aceptado. Archivo nocturno restaurado." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de los Recuerdos recuperado. Sushi, charla y una anomalía temporal cerca de las 6 AM. Científicamente: se les fue de las manos." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinMock", text: "Dormir temprano era una opción. Una opción muy buena. Nadie me escucha." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "El mapa guardó esa noche como prueba. Próxima señal: una fórmula peligrosa, conocida como 85/15." }
+  ],
+  "day-6": [
+    { speaker: "Sistema", portrait: "relics.complicidad", text: "Código aceptado. Cálculo sentimental verificado." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Complicidad recuperado. Resultado oficial: Agustina 85% de razón. Agustín conserva 15% para delirar proyectos y sobrevivir." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "Ese porcentaje es injusto. Aunque estadísticamente consistente. Me molesta más porque tiene sentido." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Queda una señal. La última no se esconde donde todo sale perfecto, sino donde el mundo pesa menos de a dos." }
+  ],
+  "day-7": [
+    { speaker: "Sistema", portrait: "relics.amor", text: "Código aceptado. Última señal sincronizada." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento del Amor recuperado. El mapa confirma que no era solo una semana de dulzura: era una ruta completa hacia el castillo." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "No. No no no. Con las siete reliquias activas, el Castillo de la Repetición queda expuesto." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Heroína, el camino final está abierto. Cuando estés lista, volvé a la Base y tocá el castillo." }
+  ]
+};
 
 export default class MissionScene extends Phaser.Scene {
   constructor() {
@@ -14,6 +59,8 @@ export default class MissionScene extends Phaser.Scene {
     const l = layout(this);
     this.mission = missions.find((item) => item.id === data.missionId) || missions[0];
     this.navWasAdded = false;
+    this.postMissionIndex = 0;
+    this.postMissionButton = null;
 
     addCoverBackground(this, this.mission.backgroundKey || "backgrounds.menu", 1);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x08020f, 0.16).setDepth(1);
@@ -167,6 +214,60 @@ export default class MissionScene extends Phaser.Scene {
     this.tweens.add({ targets: burst, alpha: 0, scale: burst.scale * 1.35, duration: 850, onComplete: () => burst.destroy() });
     this.tweens.add({ targets: spotlight, alpha: 0, delay: 900, duration: 500, onComplete: () => spotlight.destroy() });
     flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 150);
-    this.time.delayedCall(500, () => this.showNav());
+    this.time.delayedCall(900, () => this.startPostMissionChat());
+  }
+
+  startPostMissionChat() {
+    const lines = POST_MISSION_CHAT[this.mission.id] || [];
+    if (!lines.length) {
+      this.showNav();
+      return;
+    }
+    this.postMissionLines = lines;
+    this.postMissionIndex = 0;
+    this.showPostMissionLine();
+  }
+
+  showPostMissionLine() {
+    const l = layout(this);
+    const line = this.postMissionLines[this.postMissionIndex];
+    if (!line) {
+      this.postMissionButton?.destroy();
+      this.postMissionButton = null;
+      this.showNav();
+      return;
+    }
+
+    this.dialogue.say(line);
+    this.postMissionButton?.destroy();
+    const isLast = this.postMissionIndex >= this.postMissionLines.length - 1;
+    this.postMissionButton = addRpgButton(this, l.W / 2, l.H * 0.805, l.contentW * 0.62, 42, isLast ? "Volver al mapa" : "Siguiente", () => this.advancePostMissionChat(), {
+      fill: isLast ? 0x7d49d8 : 0xd94fa7,
+      stroke: 0xffd166,
+      fontSize: "13px",
+      depth: 96
+    });
+  }
+
+  advancePostMissionChat() {
+    if (this.dialogue?.timer && this.dialogue.timer.getProgress() < 1) {
+      this.dialogue.advance();
+      return;
+    }
+    if (this.dialogue && this.dialogue.page < this.dialogue.pages.length - 1) {
+      this.dialogue.advance();
+      return;
+    }
+
+    const isLast = this.postMissionIndex >= this.postMissionLines.length - 1;
+    if (isLast) {
+      this.postMissionButton?.destroy();
+      this.postMissionButton = null;
+      this.scene.start("MapScene");
+      return;
+    }
+
+    this.postMissionIndex += 1;
+    this.showPostMissionLine();
   }
 }
