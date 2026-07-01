@@ -18,6 +18,16 @@ export default class PrologueScene extends Phaser.Scene {
     addCoverBackground(this, "backgrounds.map", 0.82);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x07020e, 0.5);
     this.add.image(l.W / 2, l.safeTop + 58, "logos.projectUs").setScale(0.2);
+    addRpgButton(this, l.W - 66, l.safeTop + 22, 98, 36, "Saltar", () => {
+      this.typeEvent?.remove(false);
+      this.scene.start("BaseScene");
+    }, {
+      fill: 0x341044,
+      stroke: 0xffd166,
+      alpha: 0.9,
+      fontSize: "12px",
+      depth: 85
+    });
     addTitle(this, "Prólogo", l.W / 2, l.safeTop + 142, 28);
     this.panel = addRpgPanel(this, l.W / 2, l.H * 0.44, l.contentW, l.H * 0.34, { fill: 0x0d0618, alpha: 0.88, stroke: 0xffd166 });
     this.text = addWrappedText(this, "", l.safeX + 24, l.H * 0.34, l.contentW - 48, {
@@ -30,17 +40,19 @@ export default class PrologueScene extends Phaser.Scene {
 
   renderPage() {
     const l = layout(this);
+    this.typeEvent?.remove(false);
     this.text.setText("");
     this.nextButton?.destroy();
     let index = 0;
     const body = pages[this.page];
-    this.time.addEvent({
+    this.typeEvent = this.time.addEvent({
       delay: 18,
       repeat: body.length,
       callback: () => {
         this.text.setText(body.slice(0, index));
         index += 1;
         if (index > body.length) {
+          this.typeEvent = null;
           const isLast = this.page >= pages.length - 1;
           this.nextButton = addRpgButton(this, l.W / 2, l.H * 0.68, l.contentW * 0.72, 48, isLast ? "Comenzar aventura" : "Siguiente", () => {
             if (isLast) this.scene.start("BaseScene");
