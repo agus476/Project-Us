@@ -3,12 +3,94 @@ import { addCoverBackground, addRpgButton, addVeil, addWrappedText, fitImageToBo
 import { progress } from "../state/progress.js";
 
 const FULL_NAME = "AGUSTINA AYELÉN BLASCO VILLARRUEL";
-const sequence = [
-  "Analizando identidad...",
-  "No.",
-  "Este archivo no es para cualquiera.",
-  "La única jugadora compatible es..."
+
+const LOGIN_PROFILES = [
+  {
+    subtitle: "Decime quién quiere cruzar el portal.",
+    waiting: "> Esperando identidad compatible...",
+    lines: [
+      "Analizando identidad...",
+      "No.",
+      "Este archivo no es para cualquiera.",
+      "La única jugadora compatible es..."
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. El mapa huele algo conocido.",
+    waiting: "> Fragmento del Aroma detectado. Esperando identidad...",
+    lines: [
+      "Escaneando señal física...",
+      "Fragmento del Aroma reconocido.",
+      "Ahora sí: el sistema ya sabe quién sos.",
+      "Identidad compatible confirmada manualmente por Tomás:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. Hay antojo registrado en el sistema.",
+    waiting: "> Fragmento del Sabor en inventario. Nivel de antojo: alto.",
+    lines: [
+      "Escaneando inventario dulce...",
+      "Fragmento del Sabor reconocido.",
+      "Advertencia: el mapa detecta Milka Oreo en zona emocional.",
+      "Acceso habilitado para:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. La rutina acaba de perder estabilidad.",
+    waiting: "> Alegría recuperada. Don Repetín no está contento.",
+    lines: [
+      "Analizando mordida afectiva...",
+      "Fragmento de la Alegría reconocido.",
+      "La Piraña del Amazonas dejó huella en el sistema.",
+      "Heroína autorizada:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. La base ya empieza a sentirse como casa.",
+    waiting: "> Fragmento del Hogar detectado. Mafia gatuna en silencio.",
+    lines: [
+      "Revisando evidencia doméstica...",
+      "Fragmento del Hogar reconocido.",
+      "Vitto y Berta niegan todo. Tomás pide no hacer preguntas.",
+      "Acceso seguro para:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. Hay recuerdos sincronizados.",
+    waiting: "> Fragmento de los Recuerdos activo. Sueño acumulado detectado.",
+    lines: [
+      "Abriendo archivo nocturno...",
+      "Fragmento de los Recuerdos reconocido.",
+      "El sistema confirma: algunas charlas no cierran sesión a horario.",
+      "Mapa reservado para:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. El 85/15 fue cargado como ley.",
+    waiting: "> Fragmento de la Complicidad activo. Cálculo sentimental estable.",
+    lines: [
+      "Calculando porcentaje de razón...",
+      "Resultado: Agustina 85%. Agustín conserva 15% operativo.",
+      "El sistema recomienda no discutir esta métrica.",
+      "Acceso confirmado para:"
+    ]
+  },
+  {
+    subtitle: "Ingresá tu nombre. Las siete señales responden.",
+    waiting: "> 7/7 reliquias activas. El castillo ya no puede esconderse.",
+    lines: [
+      "Sincronizando las siete reliquias...",
+      "El mapa reconoce a la heroína completa.",
+      "Don Repetín está oficialmente preocupado.",
+      "Último acceso confirmado para:"
+    ]
+  }
 ];
+
+function getLoginProfile() {
+  const count = Phaser.Math.Clamp(progress.relicCount, 0, LOGIN_PROFILES.length - 1);
+  return LOGIN_PROFILES[count];
+}
 
 export default class LoginScene extends Phaser.Scene {
   constructor() {
@@ -17,6 +99,7 @@ export default class LoginScene extends Phaser.Scene {
 
   create() {
     const l = layout(this);
+    this.loginProfile = getLoginProfile();
     addCoverBackground(this, "backgrounds.menu", 0.78);
     addVeil(this, 0.18);
 
@@ -36,12 +119,13 @@ export default class LoginScene extends Phaser.Scene {
 
   buildLoginOverlay() {
     const l = layout(this);
+    const profile = this.loginProfile || getLoginProfile();
     const html = `
       <form class="rpg-login-card">
         <div class="rpg-kicker">Archivo clasificado del Gobierno Mundial</div>
         <div class="rpg-title">Portal de acceso</div>
-        <div class="rpg-subtitle">Decime quién quiere cruzar el portal.</div>
-        <div class="rpg-terminal" data-terminal>> Esperando identidad compatible...</div>
+        <div class="rpg-subtitle">${profile.subtitle}</div>
+        <div class="rpg-terminal" data-terminal>${profile.waiting}</div>
         <div class="rpg-row" data-input-row>
           <input class="rpg-input" autocomplete="off" placeholder="TU NOMBRE" />
           <button class="rpg-btn">Abrir portal</button>
@@ -62,14 +146,15 @@ export default class LoginScene extends Phaser.Scene {
   }
 
   runConsole() {
+    const profile = this.loginProfile || getLoginProfile();
     let fullText = "";
     let lineIndex = 0;
     const writeLine = () => {
-      if (lineIndex >= sequence.length) {
+      if (lineIndex >= profile.lines.length) {
         this.typeFinalName(fullText);
         return;
       }
-      const line = `> ${sequence[lineIndex]}\n`;
+      const line = `> ${profile.lines[lineIndex]}\n`;
       this.typeLine(line, fullText, (nextText) => {
         fullText = nextText;
         lineIndex += 1;
