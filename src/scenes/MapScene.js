@@ -26,7 +26,7 @@ export default class MapScene extends Phaser.Scene {
     const l = layout(this);
     addCoverBackground(this, "backgrounds.campamento", 0.7);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x09030f, 0.34);
-    addTitle(this, "Mapa de Sweet Week", l.W / 2, l.safeTop + 38, 24);
+    addTitle(this, "Mapa de Sweet Week", l.W / 2, l.safeTop + 38, 25);
     addHud(this, l.safeTop + 88);
 
     this.mapBox = {
@@ -146,7 +146,7 @@ export default class MapScene extends Phaser.Scene {
     this.detailObjects.push(previewFrame, preview, previewMaskShape);
 
     const title = addWrappedText(this, mission.title, l.safeX + 24, cardY - 118, cardW - previewW - 52, {
-      fontSize: "19px",
+      fontSize: "20px",
       color: "#fff0aa",
       fontStyle: "bold",
       stroke: "#351343",
@@ -154,7 +154,7 @@ export default class MapScene extends Phaser.Scene {
       depth: 25
     });
     const statusLabel = addWrappedText(this, status, previewX, cardY - 118, previewW, {
-      fontSize: "12px",
+      fontSize: "13px",
       color: statusColor,
       fontStyle: "bold",
       align: "center",
@@ -163,7 +163,7 @@ export default class MapScene extends Phaser.Scene {
       depth: 25
     }).setOrigin(0.5, 0);
     const place = addWrappedText(this, mission.place, l.safeX + 24, cardY - 56, cardW - previewW - 54, {
-      fontSize: "11px",
+      fontSize: "12px",
       color: "#ffd166",
       fontStyle: "bold",
       stroke: "#130719",
@@ -171,7 +171,7 @@ export default class MapScene extends Phaser.Scene {
       depth: 25
     });
     const intro = addWrappedText(this, mission.mapIntro || mission.description, l.safeX + 24, cardY - 10, cardW - previewW - 52, {
-      fontSize: "11px",
+      fontSize: "12px",
       color: "#fff7ff",
       lineSpacing: 2,
       stroke: "#130719",
@@ -179,7 +179,7 @@ export default class MapScene extends Phaser.Scene {
       depth: 25
     });
     const rewardTitle = addWrappedText(this, "Recompensa", l.safeX + 24, cardY + 62, 120, {
-      fontSize: "12px",
+      fontSize: "13px",
       color: "#ffd166",
       fontStyle: "bold",
       stroke: "#130719",
@@ -205,7 +205,7 @@ export default class MapScene extends Phaser.Scene {
       this.detailObjects.push(question);
     }
     const rewardLabel = addWrappedText(this, mission.relic, l.safeX + 98, cardY + 104, cardW - previewW - 170, {
-      fontSize: "10px",
+      fontSize: "12px",
       color: cleared ? "#fff7ff" : "#cbb9d8",
       lineSpacing: 2,
       stroke: "#130719",
@@ -220,7 +220,7 @@ export default class MapScene extends Phaser.Scene {
       fill: locked ? 0x6b527e : 0xd94fa7,
       stroke: 0xffd166,
       color: "#fff2ff",
-      fontSize: "13px",
+      fontSize: "14px",
       disabled: locked,
       depth: 26
     });
