@@ -1,0 +1,52 @@
+html {
+  width: 100%;
+  height: 100%;
+  height: -webkit-fill-available;
+  overscroll-behavior: none;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#game {
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+}
+
+#game canvas,
+#game div {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rpg-overlay {
+  width: 100%;
+  max-width: 100vw;
+  touch-action: manipulation;
+}
+
+.rpg-input,
+.code-panel input,
+.name-panel input {
+  font-size: 16px !important;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.rpg-btn,
+.code-panel button,
+.name-panel button {
+  font-size: 14px;
+  touch-action: manipulation;
+}
