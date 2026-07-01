@@ -57,18 +57,23 @@ export default class MissionScene extends Phaser.Scene {
 
   create(data = {}) {
     const l = layout(this);
+    const compact = l.compact;
     this.mission = missions.find((item) => item.id === data.missionId) || missions[0];
     this.navWasAdded = false;
     this.postMissionIndex = 0;
     this.postMissionButton = null;
 
-    addCoverBackground(this, this.mission.backgroundKey || "backgrounds.menu", 1);
-    this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x08020f, 0.16).setDepth(1);
+    const missionAvailable = isAvailable(this.mission);
+    const missionCleared = progress.isCleared(this.mission.id);
+    const showRelicNow = missionCleared;
 
-    addGhostButton(this, l.safeX + 44, l.safeTop + 22, "Volver", () => this.scene.start("MapScene"), 88).setDepth(80);
+    addCoverBackground(this, this.mission.backgroundKey || "backgrounds.menu", 1);
+    this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x08020f, compact ? 0.30 : 0.16).setDepth(1);
+
+    addGhostButton(this, l.safeX + 44, l.safeTop + 20, "Volver", () => this.scene.start("MapScene"), 96).setDepth(80);
 
     addWrappedText(this, `Día ${this.mission.day}`, l.W / 2, l.safeTop + 34, l.contentW, {
-      fontSize: "13px",
+      fontSize: compact ? "12px" : "13px",
       color: "#68e5ff",
       fontStyle: "bold",
       align: "center",
@@ -77,8 +82,8 @@ export default class MissionScene extends Phaser.Scene {
       depth: 20
     }).setOrigin(0.5);
 
-    addWrappedText(this, this.mission.title, l.W / 2, l.safeTop + 65, l.contentW - 66, {
-      fontSize: "20px",
+    addWrappedText(this, this.mission.title, l.W / 2, l.safeTop + 62, l.contentW - 104, {
+      fontSize: compact ? "18px" : "20px",
       color: "#fff2ff",
       fontStyle: "bold",
       align: "center",
@@ -87,8 +92,8 @@ export default class MissionScene extends Phaser.Scene {
       depth: 20
     }).setOrigin(0.5);
 
-    addWrappedText(this, this.mission.place || "Ruta de Sweet Week", l.W / 2, l.safeTop + 92, l.contentW - 90, {
-      fontSize: "12px",
+    addWrappedText(this, this.mission.place || "Ruta de Sweet Week", l.W / 2, l.safeTop + (compact ? 98 : 94), l.contentW - 100, {
+      fontSize: compact ? "11px" : "12px",
       color: "#ffe6a7",
       fontStyle: "bold",
       align: "center",
@@ -97,45 +102,105 @@ export default class MissionScene extends Phaser.Scene {
       depth: 20
     }).setOrigin(0.5);
 
-    const clueY = l.safeTop + 205;
-    if (this.textures.exists("ui.missionPanel")) {
-      const panel = this.add.image(l.W / 2, clueY, "ui.missionPanel").setDepth(11).setAlpha(0.90);
-      panel.setDisplaySize(l.contentW + 54, 128);
+    if (!missionAvailable) {
+      this.renderLockedMission(l);
+      this.dialogue = new DialogueSystem(this, {
+        y: compact ? l.H - 230 : l.H * 0.675,
+        height: compact ? 132 : 148,
+        fontSize: compact ? "13px" : "13px"
+      });
+      this.dialogue.say({ speaker: "Sistema", portrait: "portraits.donRepetinMock", text: `Zona sellada hasta ${this.mission.date}. El mapa todavía no permite esta ruta.` });
+      this.showNav();
     } else {
-      addRpgPanel(this, l.W / 2, clueY, l.contentW, 126, { alpha: 0.54, stroke: 0xffd166, depth: 12 });
+      this.renderMissionClue(l, { compact, showRelicNow });
+      this.dialogue = new DialogueSystem(this, {
+        y: compact ? l.H - 230 : l.H * 0.675,
+        height: compact ? 136 : 148,
+        fontSize: compact ? "13px" : "13px"
+      });
+      if (missionCleared) {
+        this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: `${this.mission.relic} asegurada. La bolsa arcana ya la reconoce.` });
+        this.showNav();
+      } else {
+        this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: this.mission.tomas });
+        this.addCodeOverlay();
+      }
     }
 
-    addWrappedText(this, "Pista del lugar", l.safeX + 42, clueY - 40, l.contentW * 0.55, {
-      fontSize: "13px",
+    const repetin = new RepetinSystem(this, { x: l.W - 94, y: compact ? l.safeTop + 150 : l.H * 0.25, width: compact ? 150 : 170, height: 76 });
+    this.time.delayedCall(1100, () => repetin.maybe("mission"));
+  }
+
+  renderLockedMission(l) {
+    const compact = l.compact;
+    const boxY = compact ? l.H * 0.39 : l.safeTop + 205;
+    const boxH = compact ? 120 : 128;
+    addRpgPanel(this, l.W / 2, boxY, l.contentW, boxH, { alpha: 0.68, stroke: 0xff69c8, depth: 12 });
+    addWrappedText(this, "Zona sellada", l.W / 2, boxY - 38, l.contentW - 44, {
+      fontSize: compact ? "18px" : "20px",
+      color: "#ffd166",
+      fontStyle: "bold",
+      align: "center",
+      stroke: "#351343",
+      strokeThickness: 4,
+      depth: 20
+    }).setOrigin(0.5);
+    addWrappedText(this, `Esta ruta se abre el ${this.mission.date}.`, l.W / 2, boxY - 2, l.contentW - 52, {
+      fontSize: compact ? "14px" : "15px",
+      color: "#fff2ff",
+      align: "center",
+      stroke: "#130719",
+      strokeThickness: 2,
+      depth: 20
+    }).setOrigin(0.5);
+    addWrappedText(this, "Don Repetín todavía está bloqueando esta señal.", l.W / 2, boxY + 34, l.contentW - 52, {
+      fontSize: compact ? "12px" : "13px",
+      color: "#cbb9d8",
+      align: "center",
+      stroke: "#130719",
+      strokeThickness: 2,
+      depth: 20
+    }).setOrigin(0.5);
+  }
+
+  renderMissionClue(l, { compact, showRelicNow }) {
+    const clueY = compact ? l.safeTop + 184 : l.safeTop + 205;
+    const clueH = compact ? 112 : 128;
+    if (this.textures.exists("ui.missionPanel")) {
+      const panel = this.add.image(l.W / 2, clueY, "ui.missionPanel").setDepth(11).setAlpha(0.90);
+      panel.setDisplaySize(l.contentW + 38, clueH);
+    } else {
+      addRpgPanel(this, l.W / 2, clueY, l.contentW, clueH, { alpha: 0.54, stroke: 0xffd166, depth: 12 });
+    }
+
+    addWrappedText(this, "Pista del lugar", l.safeX + 36, clueY - (compact ? 34 : 40), l.contentW * 0.55, {
+      fontSize: compact ? "12px" : "13px",
       color: "#68e5ff",
       fontStyle: "bold",
       stroke: "#351343",
       strokeThickness: 3,
       depth: 20
     });
-    addWrappedText(this, this.mission.hint, l.safeX + 42, clueY - 18, l.contentW - 84, {
-      fontSize: "12px",
+    addWrappedText(this, this.mission.hint, l.safeX + 36, clueY - (compact ? 14 : 18), l.contentW - 72, {
+      fontSize: compact ? "11px" : "12px",
       color: "#fff2ff",
-      lineSpacing: 3,
+      lineSpacing: 2,
       depth: 20,
       stroke: "#130719",
       strokeThickness: 2
     });
 
-    const tomasGroundY = l.H * 0.56;
-    addGroundedActor(this, "characters.tomas", l.safeX + 60, tomasGroundY, 96, { name: "Tomas", depth: 24, shadowW: 58 });
+    const tomasGroundY = compact ? l.H * 0.49 : l.H * 0.56;
+    addGroundedActor(this, "characters.tomas", l.safeX + 62, tomasGroundY, compact ? 76 : 96, { name: "Tomas", depth: 24, shadowW: compact ? 48 : 58 });
 
-    const relicX = l.W * 0.74;
-    const relicY = l.H * 0.515;
+    const relicX = l.W * 0.76;
+    const relicY = compact ? l.H * 0.45 : l.H * 0.515;
     this.relic = this.add.image(relicX, relicY, this.mission.relicKey).setDepth(22);
-    fitImageToBox(this.relic, 84, 84);
-    const missionAvailable = isAvailable(this.mission);
-    const missionCleared = progress.isCleared(this.mission.id);
-    const showRelicNow = missionCleared;
+    fitImageToBox(this.relic, compact ? 66 : 84, compact ? 66 : 84);
     this.relic.setVisible(showRelicNow).setAlpha(showRelicNow ? 1 : 0);
 
     this.hiddenRelicHint = addWrappedText(this, "?", relicX, relicY, 90, {
-      fontSize: "38px",
+      fontSize: compact ? "32px" : "38px",
       color: "#ffd166",
       align: "center",
       stroke: "#651a72",
@@ -146,29 +211,14 @@ export default class MissionScene extends Phaser.Scene {
 
     this.tweens.add({ targets: showRelicNow ? this.relic : this.hiddenRelicHint, y: relicY - 8, duration: 1200, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
 
-    this.relicLabel = addWrappedText(this, showRelicNow ? this.mission.relic : "Reliquia oculta", relicX, relicY + 48, 122, {
-      fontSize: "12px",
+    this.relicLabel = addWrappedText(this, showRelicNow ? this.mission.relic : "Reliquia oculta", relicX, relicY + (compact ? 40 : 48), 122, {
+      fontSize: compact ? "10px" : "12px",
       color: "#ffd166",
       align: "center",
       depth: 23,
       stroke: "#351343",
       strokeThickness: 3
     }).setOrigin(0.5);
-
-    this.dialogue = new DialogueSystem(this, { y: l.H * 0.675, height: 148, fontSize: "13px" });
-    if (!missionAvailable) {
-      this.dialogue.say({ speaker: "Sistema", portrait: "portraits.donRepetinMock", text: `Zona sellada hasta ${this.mission.date}. El mapa todavía no permite esta ruta.` });
-      this.showNav();
-    } else if (missionCleared) {
-      this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: `${this.mission.relic} asegurada. La bolsa arcana ya la reconoce.` });
-      this.showNav();
-    } else {
-      this.dialogue.say({ speaker: "Tomas", portrait: "portraits.tomasClue", text: this.mission.tomas });
-      this.addCodeOverlay();
-    }
-
-    const repetin = new RepetinSystem(this, { x: l.W - 94, y: l.H * 0.25, width: 170, height: 86 });
-    this.time.delayedCall(1100, () => repetin.maybe("mission"));
   }
 
   showNav() {
@@ -182,7 +232,7 @@ export default class MissionScene extends Phaser.Scene {
     const element = document.createElement("form");
     element.className = "code-panel code-panel-v4";
     element.innerHTML = '<input autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="CODIGO" /><button type="submit">Validar</button>';
-    this.codeDom = this.add.dom(l.W / 2, l.H * 0.785, element).setDepth(95);
+    this.codeDom = this.add.dom(l.W / 2, l.compact ? l.H - 92 : l.H * 0.785, element).setDepth(95);
     element.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = normalizeCode(element.querySelector("input").value);
@@ -204,16 +254,16 @@ export default class MissionScene extends Phaser.Scene {
     this.codeDom?.destroy();
     progress.unlockMission(this.mission);
     this.hiddenRelicHint?.setVisible(false);
-    this.relic.setVisible(true).setAlpha(1);
+    this.relic?.setVisible(true).setAlpha(1);
     this.relicLabel?.setText(this.mission.relic);
     this.dialogue.say({ speaker: "Sistema", portrait: this.mission.relicKey, text: this.mission.message });
-    const spotlight = addRpgPanel(this, l.W / 2, l.H * 0.48, l.contentW, 126, { fill: 0xffd166, alpha: 0.12, stroke: 0x7cffc4, depth: 24 });
-    const burst = this.add.image(this.relic.x, this.relic.y, "effects.impactBurst").setDepth(28);
+    const spotlight = addRpgPanel(this, l.W / 2, l.compact ? l.H * 0.43 : l.H * 0.48, l.contentW, 126, { fill: 0xffd166, alpha: 0.12, stroke: 0x7cffc4, depth: 24 });
+    const burst = this.add.image(this.relic?.x ?? l.W / 2, this.relic?.y ?? l.H * 0.43, "effects.impactBurst").setDepth(28);
     fitImageToBox(burst, 180, 180);
-    this.tweens.add({ targets: this.relic, x: l.W / 2, y: l.H * 0.39, scale: this.relic.scale * 1.2, angle: 360, duration: 850, ease: "Back.easeOut" });
+    if (this.relic) this.tweens.add({ targets: this.relic, x: l.W / 2, y: l.compact ? l.H * 0.34 : l.H * 0.39, scale: this.relic.scale * 1.2, angle: 360, duration: 850, ease: "Back.easeOut" });
     this.tweens.add({ targets: burst, alpha: 0, scale: burst.scale * 1.35, duration: 850, onComplete: () => burst.destroy() });
     this.tweens.add({ targets: spotlight, alpha: 0, delay: 900, duration: 500, onComplete: () => spotlight.destroy() });
-    flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 150);
+    flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 130);
     this.time.delayedCall(900, () => this.startPostMissionChat());
   }
 
@@ -241,7 +291,7 @@ export default class MissionScene extends Phaser.Scene {
     this.dialogue.say(line);
     this.postMissionButton?.destroy();
     const isLast = this.postMissionIndex >= this.postMissionLines.length - 1;
-    this.postMissionButton = addRpgButton(this, l.W / 2, l.H * 0.805, l.contentW * 0.62, 42, isLast ? "Volver al mapa" : "Siguiente", () => this.advancePostMissionChat(), {
+    this.postMissionButton = addRpgButton(this, l.W / 2, l.compact ? l.H - 96 : l.H * 0.805, l.contentW * 0.62, 42, isLast ? "Volver al mapa" : "Siguiente", () => this.advancePostMissionChat(), {
       fill: isLast ? 0x7d49d8 : 0xd94fa7,
       stroke: 0xffd166,
       fontSize: "14px",
