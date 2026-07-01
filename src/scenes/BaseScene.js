@@ -7,6 +7,22 @@ import RepetinSystem from "../systems/RepetinSystem.js";
 const BASE_ART_W = 432;
 const BASE_ART_H = 750;
 
+const BASE_GREETING_BY_RELIC_COUNT = [
+  "Sistema activo. Identidad pendiente... Tomás dice que mires el mapa.",
+  "Fragmento del Aroma detectado. Ahora sí: heroína reconocida sin trámite.",
+  "Fragmento del Sabor en inventario. Nivel de antojo: peligrosamente alto.",
+  "Alegría recuperada. Don Repetín pidió silencio, así que claramente vamos bien.",
+  "Hogar detectado. La base empieza a sentirse menos sistema y más refugio.",
+  "Recuerdos sincronizados. Algunas pistas ya huelen a historia importante.",
+  "Complicidad recuperada. El sistema confirma: acá hay equipo.",
+  "Las 7 reliquias responden. El Castillo de la Repetición ya no puede esconderse."
+];
+
+function getBaseGreeting() {
+  const count = Phaser.Math.Clamp(progress.relicCount, 0, BASE_GREETING_BY_RELIC_COUNT.length - 1);
+  return BASE_GREETING_BY_RELIC_COUNT[count];
+}
+
 export default class BaseScene extends Phaser.Scene {
   constructor() {
     super("BaseScene");
@@ -52,6 +68,7 @@ export default class BaseScene extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(83);
     };
     addDynamicCounter();
+    this.time.delayedCall(520, () => flashMessage(this, getBaseGreeting(), top + 92 * hubScale));
 
     const daily = getDailyMission(progress);
     const bossUnlocked = progress.relicCount >= missions.length;
