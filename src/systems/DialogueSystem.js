@@ -35,7 +35,7 @@ export default class DialogueSystem {
     this.portrait = scene.add.image(-this.width / 2 + 48, 10, "portraits.tomasClue").setDisplaySize(62, 62);
     this.speaker = scene.add.text(-this.width / 2 + 86, -this.height / 2 + 34, "Tomas", {
       fontFamily: "Trebuchet MS, Verdana",
-      fontSize: "14px",
+      fontSize: "15px",
       color: "#ffd166",
       fontStyle: "bold",
       stroke: "#1b0824",
@@ -43,16 +43,16 @@ export default class DialogueSystem {
     });
     this.text = scene.add.text(-this.width / 2 + 86, -this.height / 2 + 58, "", {
       fontFamily: "Trebuchet MS, Verdana",
-      fontSize: options.fontSize ?? "13px",
+      fontSize: options.fontSize ?? "14px",
       color: "#fff2ff",
-      lineSpacing: 2,
+      lineSpacing: 3,
       stroke: "#130719",
       strokeThickness: 2,
       wordWrap: { width: this.width - 112, useAdvancedWrap: true }
     });
     this.nextHint = scene.add.text(this.width / 2 - 26, this.height / 2 - 24, "", {
       fontFamily: "Trebuchet MS, Verdana",
-      fontSize: "11px",
+      fontSize: "12px",
       color: "#ffd166",
       fontStyle: "bold"
     }).setOrigin(1, 0.5);
@@ -68,7 +68,7 @@ export default class DialogueSystem {
   say({ speaker = "Sistema", portrait = "portraits.tomasClue", text = "", speed = 12 }) {
     if (this.timer) this.timer.remove(false);
     this.current = { speaker, portrait, speed };
-    this.pages = splitText(text, this.width < 390 ? 70 : 78);
+    this.pages = splitText(text, this.width < 390 ? 62 : 70);
     this.page = 0;
     this.renderPage();
   }
