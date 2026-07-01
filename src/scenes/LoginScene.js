@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { addCoverBackground, addRpgButton, addVeil, addWrappedText, fitImageToBox, layout, createDomOverlay } from "./SceneHelpers.js";
+import { addCoverBackground, addVeil, addWrappedText, fitImageToBox, layout, createDomOverlay } from "./SceneHelpers.js";
 import { progress } from "../state/progress.js";
 
 const FULL_NAME = "AGUSTINA AYELÉN BLASCO VILLARRUEL";
@@ -130,13 +130,19 @@ export default class LoginScene extends Phaser.Scene {
           <input class="rpg-input" autocomplete="off" placeholder="TU NOMBRE" />
           <button class="rpg-btn">Abrir portal</button>
         </div>
+        <div class="rpg-row rpg-continue-row" data-continue-row style="display:none;">
+          <button class="rpg-btn" type="button" data-continue-button>Continuar</button>
+        </div>
       </form>
     `;
-    const { dom, wrapper } = createDomOverlay(this, l.W / 2, l.H * 0.59, html);
+    const { dom, wrapper } = createDomOverlay(this, l.W / 2, l.H * 0.58, html);
     this.loginDom = dom;
     this.terminalEl = wrapper.querySelector("[data-terminal]");
     this.inputRow = wrapper.querySelector("[data-input-row]");
+    this.continueRow = wrapper.querySelector("[data-continue-row]");
     const input = wrapper.querySelector("input");
+    const continueButton = wrapper.querySelector("[data-continue-button]");
+    continueButton.addEventListener("click", () => this.scene.start("PrologueScene"));
     wrapper.addEventListener("submit", (event) => {
       event.preventDefault();
       input.blur();
@@ -165,12 +171,11 @@ export default class LoginScene extends Phaser.Scene {
   }
 
   typeFinalName(prefix) {
-    const l = layout(this);
     const line = `> ${FULL_NAME}\n`;
     this.typeLine(line, prefix, (finalText) => {
       this.terminalEl.textContent = finalText;
       progress.setLogin("Agustina");
-      addRpgButton(this, l.W / 2, l.H * 0.82, l.contentW * 0.64, 48, "Continuar", () => this.scene.start("PrologueScene"));
+      this.continueRow.style.display = "flex";
     }, 32);
   }
 
