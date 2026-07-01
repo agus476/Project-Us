@@ -20,8 +20,8 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 430,
-    height: 932
+    width: 390,
+    height: 844
   },
   dom: {
     createContainer: true
