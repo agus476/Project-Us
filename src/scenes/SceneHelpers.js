@@ -186,25 +186,37 @@ export function addNav(scene, active = "") {
     ["Bolsa", "InventoryScene"],
     ["Logros", "AchievementsScene"]
   ];
+  const current = active || scene.scene?.key || "";
   const y = l.H - l.safeBottom - 42;
   const barW = Math.min(l.contentW + 34, l.W - 8);
   const barH = 86;
+  const navigate = (target) => {
+    if (target === current) return;
+    scene.scene.start(target);
+  };
 
   if (scene.textures.exists("ui.navBar")) {
     const nav = scene.add.image(l.W / 2, y, "ui.navBar").setDepth(45);
     nav.setDisplaySize(barW, barH);
     const buttonW = barW / 4;
     const startX = l.W / 2 - barW / 2;
+    const hitY = y + 18;
+    const hitW = Math.min(buttonW * 0.72, 82);
+    const hitH = 50;
     items.forEach(([label, target], index) => {
       const x = startX + buttonW * (index + 0.5);
-      const activeItem = active === target;
+      const activeItem = current === target;
       if (activeItem) {
-        scene.add.rectangle(x, y + 3, buttonW * 0.82, 54, 0xff7fc8, 0.16)
+        scene.add.rectangle(x, hitY, hitW + 6, hitH, 0xff7fc8, 0.16)
           .setStrokeStyle(2, 0xffd166, 0.60)
           .setDepth(46);
       }
-      const zone = scene.add.zone(x, y, buttonW, barH).setInteractive({ useHandCursor: true }).setDepth(60);
-      zone.on("pointerdown", () => scene.scene.start(target));
+      const zone = scene.add.zone(x, hitY, hitW, hitH).setInteractive({ useHandCursor: !activeItem }).setDepth(62);
+      zone.on("pointerdown", (pointer, localX, localY, event) => {
+        event?.stopPropagation?.();
+        navigate(target);
+      });
+      zone.on("pointerup", (pointer, localX, localY, event) => event?.stopPropagation?.());
       addWrappedText(scene, label, x, y + 25, buttonW - 10, {
         fontSize: "11px",
         color: activeItem ? "#ffffff" : "#fff2ff",
@@ -223,8 +235,9 @@ export function addNav(scene, active = "") {
   const buttonW = (l.contentW - gap * 3) / 4;
   items.forEach(([label, target], index) => {
     const x = l.safeX + buttonW / 2 + index * (buttonW + gap);
-    addRpgButton(scene, x, y, buttonW, 36, label, () => scene.scene.start(target), {
-      fill: active === target ? 0xff7fc8 : 0x4a1a62,
+    const activeItem = current === target;
+    addRpgButton(scene, x, y, buttonW, 36, label, () => navigate(target), {
+      fill: activeItem ? 0xff7fc8 : 0x4a1a62,
       stroke: 0xffd166,
       color: "#fff2ff",
       fontSize: "12px",
