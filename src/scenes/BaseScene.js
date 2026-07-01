@@ -16,9 +16,11 @@ export default class BaseScene extends Phaser.Scene {
     const l = layout(this);
     const artKey = this.textures.exists("backgrounds.baseHubFinal") ? "backgrounds.baseHubFinal" : "backgrounds.campamento";
 
+    // Fondo de apoyo para llenar toda la pantalla sin dejar cortes notorios.
     addCoverBackground(this, artKey, 0.22).setTint(0xd39bd9);
     this.add.rectangle(l.W / 2, l.H / 2, l.W, l.H, 0x14081d, 0.28).setDepth(1);
 
+    // Imagen principal completa, SIN recorte, preservando calidad.
     const hub = this.add.image(l.W / 2, l.H / 2, artKey).setDepth(10);
     const hubScale = Math.min(l.W / hub.width, l.H / hub.height);
     hub.setScale(hubScale).setScrollFactor(0);
@@ -28,19 +30,20 @@ export default class BaseScene extends Phaser.Scene {
     const left = l.W / 2 - displayW / 2;
     const top = l.H / 2 - displayH / 2;
 
+
     const addDynamicCounter = () => {
       const cx = left + 216 * hubScale;
       const cy = top + 542 * hubScale;
-      const w = 156 * hubScale;
-      const h = 30 * hubScale;
+      const w = 142 * hubScale;
+      const h = 25 * hubScale;
       const g = this.add.graphics().setDepth(82);
       g.fillStyle(0x1b0a2b, 0.96);
       g.lineStyle(Math.max(2, 2 * hubScale), 0xffd166, 0.95);
-      g.fillRoundedRect(cx - w / 2, cy - h / 2, w, h, 12 * hubScale);
-      g.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 12 * hubScale);
+      g.fillRoundedRect(cx - w / 2, cy - h / 2, w, h, 11 * hubScale);
+      g.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 11 * hubScale);
       this.add.text(cx, cy, `${progress.relicCount}/7 reliquias recuperadas`, {
         fontFamily: "Trebuchet MS, Verdana",
-        fontSize: `${Math.max(10, 12 * hubScale)}px`,
+        fontSize: `${Math.max(9, 11 * hubScale)}px`,
         color: "#ffe9a8",
         fontStyle: "bold",
         align: "center",
@@ -53,33 +56,31 @@ export default class BaseScene extends Phaser.Scene {
     const daily = getDailyMission(progress);
     const bossUnlocked = progress.relicCount >= missions.length;
 
-    const createHotspotFromArt = (artX, artY, artW, artH, onClick, disabled = false, inflate = 1.35) => {
+    const createHotspotFromArt = (artX, artY, artW, artH, onClick, disabled = false) => {
       const x = left + artX * hubScale;
       const y = top + artY * hubScale;
-      const w = artW * hubScale * inflate;
-      const h = artH * hubScale * inflate;
-      const zone = this.add.zone(x, y, w, h)
-        .setDepth(120)
+      const w = artW * hubScale;
+      const h = artH * hubScale;
+      const zone = this.add.rectangle(x, y, w, h, 0xffffff, 0.001)
+        .setDepth(80)
         .setInteractive({ useHandCursor: !disabled });
       if (disabled) {
         zone.disableInteractive();
       } else {
-        zone.on("pointerdown", (pointer, localX, localY, event) => {
-          event?.stopPropagation?.();
-          onClick();
-        });
+        zone.on("pointerdown", onClick);
       }
       return zone;
     };
 
-    createHotspotFromArt(307, 192, 92, 52, () => {
+    // Hotspots alineados a los carteles del arte final.
+    createHotspotFromArt(307, 192, 82, 44, () => {
       if (bossUnlocked) this.scene.start("BossScene");
       else flashMessage(this, "Faltan reliquias para abrir el Castillo de la Repetición.", top + 110 * hubScale);
-    }, false, 1.55);
-    createHotspotFromArt(275, 289, 82, 48, () => this.scene.start("MapScene"), false, 1.65);
-    createHotspotFromArt(381, 370, 88, 52, () => this.scene.start("AchievementsScene"), false, 1.55);
-    createHotspotFromArt(63, 536, 122, 68, () => this.scene.start("InventoryScene"), false, 1.45);
-    createHotspotFromArt(214, 688, 190, 82, () => this.scene.start("MissionScene", { missionId: daily.id }), false, 1.45);
+    });
+    createHotspotFromArt(275, 289, 66, 36, () => this.scene.start("MapScene"));
+    createHotspotFromArt(381, 370, 74, 38, () => this.scene.start("AchievementsScene"));
+    createHotspotFromArt(63, 536, 110, 56, () => this.scene.start("InventoryScene"));
+    createHotspotFromArt(214, 688, 172, 66, () => this.scene.start("MissionScene", { missionId: daily.id }));
 
     const repetin = new RepetinSystem(this, {
       x: left + 334 * hubScale,
