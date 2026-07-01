@@ -36,10 +36,38 @@ body {
   touch-action: manipulation;
 }
 
+.rpg-login-card,
+.rpg-card,
+.rpg-hub-card,
+.rpg-map-preview {
+  width: min(390px, calc(100vw - 24px));
+}
+
+.rpg-title {
+  font-size: clamp(22px, 6.2vw, 29px);
+}
+
+.rpg-subtitle {
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 1.32;
+}
+
+.rpg-terminal {
+  min-height: 168px;
+  font-size: 16px;
+  line-height: 1.46;
+}
+
+.rpg-kicker,
+.rpg-status,
+.rpg-relic-count {
+  font-size: 13px;
+}
+
 .rpg-input,
 .code-panel input,
 .name-panel input {
-  font-size: 16px !important;
+  font-size: 17px !important;
   -webkit-user-select: text;
   user-select: text;
 }
@@ -47,6 +75,17 @@ body {
 .rpg-btn,
 .code-panel button,
 .name-panel button {
-  font-size: 14px;
+  font-size: 15px;
   touch-action: manipulation;
+}
+
+.code-panel {
+  width: min(386px, calc(100vw - 22px));
+}
+
+@media (max-height: 760px) {
+  .rpg-terminal {
+    min-height: 138px;
+    font-size: 15px;
+  }
 }
