@@ -19,10 +19,10 @@ const POST_MISSION_CHAT = {
     { speaker: "Tomas", portrait: "portraits.tomasClue", text: "El mapa ya huele a problema. Próxima señal: una criatura afectiva con mordida rápida." }
   ],
   "day-3": [
-    { speaker: "Sistema", portrait: "relics.alegria", text: "Código aceptado. Mordida emocional validada." },
-    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Alegría recuperado. La Pidaña del Amazonas queda registrada como especie peligrosa, tierna y absolutamente culpable." },
-    { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "La alegría es ineficiente. La gente feliz lava menos platos y se distrae con abrazos." },
-    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Ignoralo. Próxima zona: territorio gatuno. Entrar con respeto, snacks y cero acusaciones directas." }
+    { speaker: "Sistema", portrait: "relics.alegria", text: "Código aceptado. Jaula dulce abierta. Criatura afectiva liberada." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Alegría recuperado. La pidaña salió de la falsa laguna doméstica y apunta directo a la rutina." },
+    { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "La alegría es ineficiente. La gente feliz lava menos platos y se distrae con abra... ¿qué me mordió la capa?" },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Confirmo impacto: la pidaña mordió a Don Repetín con amor. Rutina debilitada. Próxima zona: territorio gatuno." }
   ],
   "day-4": [
     { speaker: "Sistema", portrait: "relics.hogar", text: "Código aceptado. Evidencia doméstica sincronizada." },
