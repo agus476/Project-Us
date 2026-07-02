@@ -125,17 +125,17 @@ export default class MapScene extends Phaser.Scene {
     const statusColor = locked ? "#c5b3d8" : cleared ? "#7cffc4" : "#68e5ff";
 
     const cardX = l.W / 2;
-    const cardY = l.H * 0.655;
+    const cardY = l.H * 0.635;
     const cardW = l.contentW + 4;
-    const cardH = 304;
+    const cardH = 284;
 
     const panel = addRpgPanel(this, cardX, cardY, cardW, cardH, { alpha: 0.90, stroke: 0xffd166, depth: 21 });
     this.detailObjects.push(panel);
 
-    const previewW = 142;
-    const previewH = 194;
+    const previewW = 132;
+    const previewH = 158;
     const previewX = l.W - l.safeX - previewW / 2 - 8;
-    const previewY = cardY - 8;
+    const previewY = cardY - 20;
     const previewFrame = addRpgPanel(this, previewX, previewY, previewW + 10, previewH + 10, { alpha: 0.84, stroke: 0xffd166, depth: 23 });
     const preview = this.add.image(previewX, previewY, mission.backgroundKey).setDepth(24);
     preview.setDisplaySize(previewW, previewH);
@@ -145,7 +145,7 @@ export default class MapScene extends Phaser.Scene {
     preview.setMask(previewMask);
     this.detailObjects.push(previewFrame, preview, previewMaskShape);
 
-    const title = addWrappedText(this, mission.title, l.safeX + 24, cardY - 118, cardW - previewW - 52, {
+    const title = addWrappedText(this, mission.title, l.safeX + 24, cardY - 108, cardW - previewW - 52, {
       fontSize: "20px",
       color: "#fff0aa",
       fontStyle: "bold",
@@ -153,8 +153,8 @@ export default class MapScene extends Phaser.Scene {
       strokeThickness: 4,
       depth: 25
     });
-    const statusLabel = addWrappedText(this, status, previewX, cardY - 118, previewW, {
-      fontSize: "13px",
+    const statusLabel = addWrappedText(this, status, previewX, cardY - 108, previewW, {
+      fontSize: "12px",
       color: statusColor,
       fontStyle: "bold",
       align: "center",
@@ -162,7 +162,7 @@ export default class MapScene extends Phaser.Scene {
       strokeThickness: 3,
       depth: 25
     }).setOrigin(0.5, 0);
-    const place = addWrappedText(this, mission.place, l.safeX + 24, cardY - 56, cardW - previewW - 54, {
+    const place = addWrappedText(this, mission.place, l.safeX + 24, cardY - 48, cardW - previewW - 54, {
       fontSize: "12px",
       color: "#ffd166",
       fontStyle: "bold",
@@ -170,7 +170,7 @@ export default class MapScene extends Phaser.Scene {
       strokeThickness: 3,
       depth: 25
     });
-    const intro = addWrappedText(this, mission.mapIntro || mission.description, l.safeX + 24, cardY - 10, cardW - previewW - 52, {
+    const intro = addWrappedText(this, mission.mapIntro || mission.description, l.safeX + 24, cardY - 6, cardW - previewW - 52, {
       fontSize: "12px",
       color: "#fff7ff",
       lineSpacing: 2,
@@ -178,7 +178,7 @@ export default class MapScene extends Phaser.Scene {
       strokeThickness: 2,
       depth: 25
     });
-    const rewardTitle = addWrappedText(this, "Recompensa", l.safeX + 24, cardY + 62, 120, {
+    const rewardTitle = addWrappedText(this, "Recompensa", l.safeX + 24, cardY + 64, 120, {
       fontSize: "13px",
       color: "#ffd166",
       fontStyle: "bold",
@@ -187,14 +187,14 @@ export default class MapScene extends Phaser.Scene {
       depth: 25
     });
 
-    const relicX = l.safeX + 60;
-    const relicY = cardY + 118;
+    const relicX = l.safeX + 58;
+    const relicY = cardY + 112;
     const relic = this.add.image(relicX, relicY, mission.relicKey).setDepth(25);
-    fitImageToBox(relic, 54, 54);
+    fitImageToBox(relic, 48, 48);
     if (!cleared) {
       relic.setAlpha(0.22).setTint(0x33224a);
       const question = addWrappedText(this, "?", relicX, relicY, 40, {
-        fontSize: "28px",
+        fontSize: "26px",
         color: "#ffd166",
         align: "center",
         fontStyle: "bold",
@@ -204,7 +204,7 @@ export default class MapScene extends Phaser.Scene {
       }).setOrigin(0.5);
       this.detailObjects.push(question);
     }
-    const rewardLabel = addWrappedText(this, mission.relic, l.safeX + 98, cardY + 104, cardW - previewW - 170, {
+    const rewardLabel = addWrappedText(this, mission.relic, l.safeX + 94, cardY + 100, cardW - previewW - 166, {
       fontSize: "12px",
       color: cleared ? "#fff7ff" : "#cbb9d8",
       lineSpacing: 2,
@@ -214,13 +214,13 @@ export default class MapScene extends Phaser.Scene {
     });
 
     const buttonLabel = locked ? "Ruta sellada" : cleared ? "Revisitar misión" : "Entrar a misión";
-    const action = addRpgButton(this, l.safeX + 115, cardY + 130, 170, 40, buttonLabel, () => {
+    const action = addRpgButton(this, previewX, cardY + 102, previewW + 8, 40, buttonLabel, () => {
       if (!locked) this.scene.start("MissionScene", { missionId: mission.id });
     }, {
       fill: locked ? 0x6b527e : 0xd94fa7,
       stroke: 0xffd166,
       color: "#fff2ff",
-      fontSize: "14px",
+      fontSize: "13px",
       disabled: locked,
       depth: 26
     });
