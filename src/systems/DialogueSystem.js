@@ -26,7 +26,7 @@ export default class DialogueSystem {
     this.height = options.height ?? 172;
     const x = options.x ?? l.W / 2;
     const y = options.y ?? l.H - l.safeBottom - this.height / 2 - 72;
-    this.group = scene.add.container(x, y).setDepth(options.depth ?? 60);
+    this.group = scene.add.container(x, y).setDepth(options.depth ?? 94);
 
     const shadow = scene.add.rectangle(0, 8, this.width, this.height, 0x000000, 0.28);
     const box = scene.add.image(0, 0, "ui.dialogBox").setDisplaySize(this.width, this.height).setAlpha(0.97);
@@ -56,9 +56,18 @@ export default class DialogueSystem {
       color: "#ffd166",
       fontStyle: "bold"
     }).setOrigin(1, 0.5);
-    this.group.add([shadow, box, dark, this.portrait, this.speaker, this.text, this.nextHint]);
+    this.nextZone = scene.add.rectangle(this.width / 2 - 62, this.height / 2 - 26, 118, 42, 0xffffff, 0.001)
+      .setInteractive({ useHandCursor: true });
+    this.group.add([shadow, box, dark, this.portrait, this.speaker, this.text, this.nextHint, this.nextZone]);
     this.group.setSize(this.width, this.height).setInteractive(new Phaser.Geom.Rectangle(-this.width / 2, -this.height / 2, this.width, this.height), Phaser.Geom.Rectangle.Contains);
-    this.group.on("pointerdown", () => this.advance());
+    this.group.on("pointerdown", (pointer, localX, localY, event) => {
+      event?.stopPropagation?.();
+      this.advance();
+    });
+    this.nextZone.on("pointerdown", (pointer, localX, localY, event) => {
+      event?.stopPropagation?.();
+      this.advance();
+    });
     this.timer = null;
     this.pages = [""];
     this.page = 0;
@@ -80,6 +89,7 @@ export default class DialogueSystem {
     this.speaker.setText(speaker || "Sistema");
     this.text.setText("");
     this.nextHint.setText("");
+    this.nextZone.setVisible(false).disableInteractive();
     let index = 0;
     this.timer = this.scene.time.addEvent({
       delay: speed ?? 12,
@@ -88,7 +98,11 @@ export default class DialogueSystem {
         this.text.setText(text.slice(0, index));
         index += 1;
         if (index > text.length && this.pages.length > 1) {
-          this.nextHint.setText(this.page < this.pages.length - 1 ? "Siguiente" : "Fin");
+          const label = this.page < this.pages.length - 1 ? "Siguiente" : "Fin";
+          this.nextHint.setText(label);
+          if (this.page < this.pages.length - 1) {
+            this.nextZone.setVisible(true).setInteractive({ useHandCursor: true });
+          }
         }
       }
     });
@@ -98,7 +112,13 @@ export default class DialogueSystem {
     if (this.timer && this.timer.getProgress() < 1) {
       this.timer.remove(false);
       this.text.setText(this.pages[this.page] || "");
-      this.nextHint.setText(this.page < this.pages.length - 1 ? "Siguiente" : "");
+      if (this.page < this.pages.length - 1) {
+        this.nextHint.setText("Siguiente");
+        this.nextZone.setVisible(true).setInteractive({ useHandCursor: true });
+      } else {
+        this.nextHint.setText("");
+        this.nextZone.setVisible(false).disableInteractive();
+      }
       return;
     }
     if (this.page >= this.pages.length - 1) return;
