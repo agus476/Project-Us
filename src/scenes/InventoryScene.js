@@ -9,6 +9,11 @@ function formatFoundAt(value) {
   return new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
+function shorten(text, limit) {
+  if (!text || text.length <= limit) return text;
+  return `${text.slice(0, limit - 3).trim()}...`;
+}
+
 export default class InventoryScene extends Phaser.Scene {
   constructor() {
     super("InventoryScene");
@@ -37,27 +42,36 @@ export default class InventoryScene extends Phaser.Scene {
     const l = layout(this);
     const compact = l.compact;
     const unlocked = progress.hasRelic(mission.id);
-    const startY = l.safeTop + (compact ? 132 : 188);
-    const rowH = compact ? 54 : 76;
-    const panelH = compact ? 48 : 66;
+    const startY = l.safeTop + (compact ? 138 : 188);
+    const rowH = compact ? 70 : 76;
+    const panelH = compact ? 64 : 66;
     const y = startY + index * rowH;
-    addRpgPanel(this, l.W / 2, y, l.contentW, panelH, { fill: 0x281038, alpha: 0.72, stroke: unlocked ? 0xffd166 : 0x4b1a65, depth: 18 });
+
+    addRpgPanel(this, l.W / 2, y, l.contentW, panelH, { fill: 0x281038, alpha: 0.76, stroke: unlocked ? 0xffd166 : 0x4b1a65, depth: 18 });
+
     const img = this.add.image(l.safeX + 32, y, mission.relicKey).setAlpha(unlocked ? 1 : 0.22).setDepth(20);
-    fitImageToBox(img, compact ? 36 : 48, compact ? 36 : 48);
+    fitImageToBox(img, compact ? 40 : 48, compact ? 40 : 48);
     if (!unlocked) img.setTint(0x1d1a2a);
-    addWrappedText(this, unlocked ? mission.relic : `Reliquia del dia ${mission.day}`, l.safeX + 62, y - (compact ? 19 : 27), l.contentW - 78, {
+
+    addWrappedText(this, unlocked ? mission.relic : `Reliquia del dia ${mission.day}`, l.safeX + 64, y - (compact ? 23 : 27), l.contentW - 86, {
       fontSize: compact ? "12px" : "14px",
       color: unlocked ? "#fff2ff" : "#9c89b8",
       fontStyle: "bold",
-      depth: 21
+      depth: 21,
+      stroke: "#130719",
+      strokeThickness: 2
     });
-    const limit = compact ? 54 : 70;
-    const shortDescription = unlocked && mission.description.length > limit ? `${mission.description.slice(0, limit - 3)}...` : mission.description;
-    addWrappedText(this, unlocked ? shortDescription : "Silueta sellada dentro de la bolsa.", l.safeX + 62, y - (compact ? 2 : 7), l.contentW - 78, {
-      fontSize: compact ? "8px" : "9px",
-      color: unlocked ? "#ffd166" : "#766388",
-      depth: 21
+
+    const description = unlocked ? shorten(mission.description, compact ? 92 : 112) : "Silueta sellada dentro de la bolsa.";
+    addWrappedText(this, description, l.safeX + 64, y - (compact ? 3 : 7), l.contentW - 88, {
+      fontSize: compact ? "10px" : "10px",
+      color: unlocked ? "#ffe6a7" : "#8f7aa7",
+      lineSpacing: compact ? 1 : 2,
+      depth: 21,
+      stroke: "#130719",
+      strokeThickness: 2
     });
+
     if (!compact) {
       addWrappedText(this, unlocked ? `Dia ${mission.day} · ${formatFoundAt(progress.data.relicFoundAt?.[mission.id])}` : "Funcion desconocida.", l.safeX + 72, y + 21, l.contentW - 92, {
         fontSize: "9px",
