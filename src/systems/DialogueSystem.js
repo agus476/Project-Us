@@ -44,7 +44,7 @@ export default class DialogueSystem {
     const box = scene.add.image(0, 0, "ui.dialogBox").setDisplaySize(this.width, this.height).setAlpha(0.97);
     const dark = scene.add.rectangle(0, 4, this.width - 30, this.height - 34, 0x14071f, 0.18);
 
-    this.portrait = scene.add.image(-this.width / 2 + 48, 8, "portraits.tomasClue").setDisplaySize(70, 70);
+    this.portrait = scene.add.image(-this.width / 2 + 48, 10, "portraits.tomasClue").setDisplaySize(62, 62);
     this.speaker = scene.add.text(-this.width / 2 + 86, -this.height / 2 + 34, "Tomas", {
       fontFamily: "Trebuchet MS, Verdana",
       fontSize: "15px",
@@ -96,16 +96,11 @@ export default class DialogueSystem {
 
   setPortraitFrame(portrait) {
     const key = portrait || "portraits.tomasClue";
-    this.portrait.clearCrop();
     this.portrait.setTexture(key);
 
     if (key === "portraits.tomasClue") {
-      const source = this.scene.textures.get(key).getSourceImage();
-      const cropW = source.width;
-      const cropH = Math.min(source.width, source.height);
-      this.portrait.setCrop(0, 0, cropW, cropH);
-      this.portrait.setDisplaySize(72, 72);
-      this.portrait.setPosition(-this.width / 2 + 48, 4);
+      this.portrait.setDisplaySize(70, 70);
+      this.portrait.setPosition(-this.width / 2 + 48, 8);
       return;
     }
 
