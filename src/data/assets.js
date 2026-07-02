@@ -33,7 +33,7 @@ export const assets = {
     agustinaDetermined: "portraits/agustina-determined.png",
     agustinaHappy: "portraits/agustina-happy.png",
     agustinSupport: "portraits/agustin-support.png",
-    tomasClue: "portraits/tomas-clue.png",
+    tomasClue: "portraits/tomas-clue.png?v=2",
     donRepetinMock: "portraits/don-repetin-mock.png",
     donRepetinAngry: "portraits/don-repetin-angry.png"
   },
