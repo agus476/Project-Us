@@ -129,6 +129,24 @@ export const missions = [
 
 export const DEV_MODE = false;
 export const DEV_DATE = null;
+export const RUNTIME_DEV_KEY = "project-us-sweet-week-runtime-dev";
+
+export function isRuntimeDevMode() {
+  try {
+    return localStorage.getItem(RUNTIME_DEV_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function setRuntimeDevMode(enabled) {
+  try {
+    if (enabled) localStorage.setItem(RUNTIME_DEV_KEY, "1");
+    else localStorage.removeItem(RUNTIME_DEV_KEY);
+  } catch {
+    // localStorage puede no estar disponible en algunos navegadores privados.
+  }
+}
 
 export function todayId() {
   if (DEV_MODE && DEV_DATE) return DEV_DATE;
@@ -140,7 +158,7 @@ export function todayId() {
 }
 
 export function isAvailable(mission) {
-  if (DEV_MODE) return true;
+  if (DEV_MODE || isRuntimeDevMode()) return true;
   return mission.date <= todayId();
 }
 
