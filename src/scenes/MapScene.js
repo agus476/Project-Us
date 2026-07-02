@@ -214,7 +214,7 @@ export default class MapScene extends Phaser.Scene {
     });
 
     const buttonLabel = locked ? "Ruta sellada" : cleared ? "Revisitar misión" : "Entrar a misión";
-    const action = addRpgButton(this, l.safeX + 115, cardY + 190, 170, 44, buttonLabel, () => {
+    const action = addRpgButton(this, l.safeX + 115, cardY + 130, 170, 40, buttonLabel, () => {
       if (!locked) this.scene.start("MissionScene", { missionId: mission.id });
     }, {
       fill: locked ? 0x6b527e : 0xd94fa7,
