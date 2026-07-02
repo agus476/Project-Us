@@ -206,9 +206,6 @@ export function addNav(scene, active = "") {
     items.forEach(([label, target], index) => {
       const x = startX + buttonW * (index + 0.5);
       const activeItem = current === target;
-      if (activeItem) {
-        scene.add.rectangle(x, hitY + 4, hitW * 0.66, 6, 0xff7fc8, 0.28).setDepth(46);
-      }
       const zone = scene.add.zone(x, hitY, hitW, hitH).setInteractive({ useHandCursor: !activeItem }).setDepth(62);
       zone.on("pointerdown", (pointer, localX, localY, event) => {
         event?.stopPropagation?.();
@@ -235,7 +232,7 @@ export function addNav(scene, active = "") {
     const x = l.safeX + buttonW / 2 + index * (buttonW + gap);
     const activeItem = current === target;
     addRpgButton(scene, x, y, buttonW, 36, label, () => navigate(target), {
-      fill: activeItem ? 0xff7fc8 : 0x4a1a62,
+      fill: activeItem ? 0x4a1a62 : 0x4a1a62,
       stroke: 0xffd166,
       color: "#fff2ff",
       fontSize: "12px",
