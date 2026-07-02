@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import { layout } from "../scenes/SceneHelpers.js";
 
-function splitText(text, max = 76) {
-  const words = String(text).split(/\s+/);
+function splitText(text, max = 92, minLast = 24) {
+  const words = String(text).trim().split(/\s+/).filter(Boolean);
   const pages = [];
   let page = "";
+
   words.forEach((word) => {
     const next = page ? `${page} ${word}` : word;
     if (next.length > max && page) {
@@ -14,7 +15,18 @@ function splitText(text, max = 76) {
       page = next;
     }
   });
+
   if (page) pages.push(page);
+
+  if (pages.length > 1) {
+    const last = pages[pages.length - 1];
+    const previous = pages[pages.length - 2];
+    if (last.length < minLast && `${previous} ${last}`.length <= max + 22) {
+      pages[pages.length - 2] = `${previous} ${last}`;
+      pages.pop();
+    }
+  }
+
   return pages.length ? pages : [""];
 }
 
@@ -77,7 +89,7 @@ export default class DialogueSystem {
   say({ speaker = "Sistema", portrait = "portraits.tomasClue", text = "", speed = 12 }) {
     if (this.timer) this.timer.remove(false);
     this.current = { speaker, portrait, speed };
-    this.pages = splitText(text, this.width < 390 ? 62 : 70);
+    this.pages = splitText(text, this.width < 390 ? 82 : 92, this.width < 390 ? 20 : 24);
     this.page = 0;
     this.renderPage();
   }
