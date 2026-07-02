@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { normalizeCode, setRuntimeDevMode } from "../data/missions.js";
 import { addCoverBackground, addVeil, addWrappedText, fitImageToBox, layout, createDomOverlay } from "./SceneHelpers.js";
 import { progress } from "../state/progress.js";
 
@@ -145,10 +146,42 @@ export default class LoginScene extends Phaser.Scene {
     continueButton.addEventListener("click", () => this.scene.start("PrologueScene"));
     wrapper.addEventListener("submit", (event) => {
       event.preventDefault();
+      const typedValue = normalizeCode(input.value);
       input.blur();
       this.inputRow.style.display = "none";
+      if (typedValue === "DEV") {
+        this.runDevConsole();
+        return;
+      }
       this.runConsole();
     });
+  }
+
+  runDevConsole() {
+    setRuntimeDevMode(true);
+    const lines = [
+      "Comando oculto detectado...",
+      "Modo dev activado.",
+      "Todas las rutas por fecha quedan abiertas para prueba.",
+      "Progreso real: intacto. Spoilers finales: bloqueados por criterio del mapa."
+    ];
+    let fullText = "";
+    let lineIndex = 0;
+    const writeLine = () => {
+      if (lineIndex >= lines.length) {
+        this.terminalEl.textContent = fullText;
+        progress.setLogin("Agustina");
+        this.continueRow.style.display = "flex";
+        return;
+      }
+      const line = `> ${lines[lineIndex]}\n`;
+      this.typeLine(line, fullText, (nextText) => {
+        fullText = nextText;
+        lineIndex += 1;
+        this.time.delayedCall(160, writeLine);
+      }, 18);
+    };
+    writeLine();
   }
 
   runConsole() {
