@@ -207,9 +207,7 @@ export function addNav(scene, active = "") {
       const x = startX + buttonW * (index + 0.5);
       const activeItem = current === target;
       if (activeItem) {
-        scene.add.rectangle(x, hitY, hitW + 6, hitH, 0xff7fc8, 0.16)
-          .setStrokeStyle(2, 0xffd166, 0.60)
-          .setDepth(46);
+        scene.add.rectangle(x, hitY + 4, hitW * 0.66, 6, 0xff7fc8, 0.28).setDepth(46);
       }
       const zone = scene.add.zone(x, hitY, hitW, hitH).setInteractive({ useHandCursor: !activeItem }).setDepth(62);
       zone.on("pointerdown", (pointer, localX, localY, event) => {
