@@ -20,7 +20,7 @@ const POST_MISSION_CHAT = {
   ],
   "day-3": [
     { speaker: "Sistema", portrait: "relics.alegria", text: "Código aceptado. Mordida emocional validada." },
-    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Alegría recuperado. La Piraña del Amazonas queda registrada como especie peligrosa, tierna y absolutamente culpable." },
+    { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Fragmento de la Alegría recuperado. La Pidaña del Amazonas queda registrada como especie peligrosa, tierna y absolutamente culpable." },
     { speaker: "Don Repetin", portrait: "portraits.donRepetinAngry", text: "La alegría es ineficiente. La gente feliz lava menos platos y se distrae con abrazos." },
     { speaker: "Tomas", portrait: "portraits.tomasClue", text: "Ignoralo. Próxima zona: territorio gatuno. Entrar con respeto, snacks y cero acusaciones directas." }
   ],
@@ -257,12 +257,10 @@ export default class MissionScene extends Phaser.Scene {
     this.relic?.setVisible(true).setAlpha(1);
     this.relicLabel?.setText(this.mission.relic);
     this.dialogue.say({ speaker: "Sistema", portrait: this.mission.relicKey, text: this.mission.message });
-    const spotlight = addRpgPanel(this, l.W / 2, l.compact ? l.H * 0.43 : l.H * 0.48, l.contentW, 126, { fill: 0xffd166, alpha: 0.12, stroke: 0x7cffc4, depth: 24 });
     const burst = this.add.image(this.relic?.x ?? l.W / 2, this.relic?.y ?? l.H * 0.43, "effects.impactBurst").setDepth(28);
     fitImageToBox(burst, 180, 180);
     if (this.relic) this.tweens.add({ targets: this.relic, x: l.W / 2, y: l.compact ? l.H * 0.34 : l.H * 0.39, scale: this.relic.scale * 1.2, angle: 360, duration: 850, ease: "Back.easeOut" });
     this.tweens.add({ targets: burst, alpha: 0, scale: burst.scale * 1.35, duration: 850, onComplete: () => burst.destroy() });
-    this.tweens.add({ targets: spotlight, alpha: 0, delay: 900, duration: 500, onComplete: () => spotlight.destroy() });
     flashMessage(this, `Reliquia obtenida: ${this.mission.relic}`, l.safeTop + 130);
     this.time.delayedCall(900, () => this.startPostMissionChat());
   }
