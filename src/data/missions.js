@@ -63,12 +63,12 @@ export const missions = [
     relicKey: "relics.hogar",
     relic: "Fragmento del Hogar",
     code: "MAFIA",
-    tomas: "No puedo hablar demasiado. Vitto y Berta estan escuchando. Pero la mafia gatuna sabe donde esta el cuarto fragmento.",
-    hint: "Cuando algo se cae, aparece roto o nadie se hace cargo... probablemente hay una pista.",
-    message: "El Fragmento del Hogar fue recuperado. La mafia gatuna permite continuar, por ahora.",
+    tomas: "La Mafia Gatuna activo protocolo silencio. Vitto no declara, Tomas finge no saber nada y Berta desaparecio con una parte del expediente. Orden oficial: investigar donde se esconde Berta.",
+    hint: "No busques a toda la mafia. Segui a la integrante que mejor sabe desaparecer: donde se esconde Berta puede estar el cuarto fragmento.",
+    message: "El Fragmento del Hogar fue recuperado. Berta no confeso nada, pero la mafia gatuna permite continuar, por ahora.",
     achievement: "base",
-    description: "Reliquia bajo investigacion. Vitto, Berta y Tomas niegan los hechos, pero dejaron pelos en la evidencia.",
-    lore: "Vitto y Berta no estan involucrados. Fin del comunicado.",
+    description: "Reliquia bajo investigacion. Berta la custodio desde las sombras y dejo pelos en la evidencia.",
+    lore: "Vitto y Tomas no estuvieron involucrados. Berta no responde preguntas. Fin del comunicado.",
     mapIntro: "El cuartel secreto donde las patitas conspiran en silencio y todo indicio lleva a casa."
   },
   {
